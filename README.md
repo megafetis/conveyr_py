@@ -1,15 +1,22 @@
 # conveyr_py
 Conveyor pipline handling library for python 3.5 and later
 
+Requirements:
+* Python >= 3.5
+
+## Usage:
+install [conveyr](https://pypi.org/project/conveyr/):
+
+`pip install conveyr`
+
+
 ```py
 from conveyr import Conveyor
 import asyncio
 def name_handler():
   pass
 
-
 conveyor = Conveyor()
-
 loop = asyncio.get_event_loop()
 results = loop.run_until_complete(conveyor.process(entity,payload)) 
 loop.close()
