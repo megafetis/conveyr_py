@@ -103,7 +103,7 @@ results = loop.run_until_complete(conveyor.process(entity,payload))
 loop.close()
 ```
 #in python 3.6 and later: results = asyncio.run(conveyor.process(entity,payload))
-
+```py
 print(results) # dict of results if handlers returns anything
 print(entity.id) # some guid id
 print(entity.name) # 'evgeniy'
@@ -121,7 +121,7 @@ and manage handling orders
 @Conveyor.handler(order=5,group="aftercommit")
 async def some_handler(entity:IHasNameEntity,payload:INamePayload):
     entity.name = payload.name
-# ...
+#...
 results = loop.run_until_complete(conveyor.process(entity,payload,"aftercommit")) # handlers with such group only executed
 
 ```
