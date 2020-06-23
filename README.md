@@ -101,8 +101,11 @@ payload = Payload('evgeniy','fetisov','some description',30)
 
 results = loop.run_until_complete(conveyor.process(entity,payload)) 
 loop.close()
-```
+
 #in python 3.6 and later: results = asyncio.run(conveyor.process(entity,payload))
+
+```
+
 ```py
 print(results) # dict of results if handlers returns anything
 print(entity.id) # some guid id
