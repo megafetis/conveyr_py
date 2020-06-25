@@ -4,13 +4,32 @@ import inspect
 __handlers__ = []
 __handlers_per_concrete__={}
 
+
+def __get_result_block__(resp:Awaitable):
+    loop = asyncio.get_event_loop()
+    results = loop.run_until_complete(resp)
+    loop.close()
+    return results
+
 class Conveyor():
+    """Class of conveyor as entry point to pipline processing"""
     def __init__(self,class_handler_manager = None):
         self.class_handler_manager = class_handler_manager or (lambda cls: cls() )
 
     class_handler_manager=None
 
-    async def process(self, entity:object, payload:object=None,group:str=None)->Awaitable[dict]:
+    async def process_async(self, entity:object, payload:object=None,group:str=None)->Awaitable[dict]:
+        """
+        Start processing entity in async mode
+
+        Args:
+            entity (`object`): Entity to handle.
+            payload (`Any` or some `object`): some optional payload data.
+            group (`str`): Grouping name to split handlers of same entity and payload to manage starting cases.
+
+        Returns:
+            dictionary (`Awaitable[dict]`): Dictionary of results if handlers returns anything
+        """
         resp_dict = {}
         for handler in Conveyor.find_handlers(entity,payload,group):
             resp = (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity,payload) if \
@@ -19,10 +38,43 @@ class Conveyor():
 
             resp_dict[handler["handler"].__name__] = await resp if resp and inspect.isawaitable(resp) else resp
         return resp_dict
+
+
+    def process(self, entity:object, payload:object=None,group:str=None,no_block=False) -> dict:
+        """
+        Start processing entity in async mode
+
+        Args:
+            entity (`object`): Entity to handle.
+            payload (`Any` or some `object`): some optional payload data.
+            group (`str`): Grouping name to split handlers of same entity and payload to manage starting cases.
+            no_block ('boolean') if set `True`, async handlers will not blocking and waiting to handle. By default `False`
+        Returns:
+            dictionary (`dict`): Dictionary of results if handlers returns anything
+        """
+        resp_dict = {}
+        for handler in Conveyor.find_handlers(entity,payload,group):
+            resp = (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity,payload) if \
+                 handler["payload_type"] else \
+                      (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity)
+
+            resp_dict[handler["handler"].__name__] = __get_result_block__(resp) if resp and inspect.isawaitable(resp) and (not no_block) else resp
+        return resp_dict
             
 
     @staticmethod
     def register_handler(handler,group:str=None,order = 0,entity_type:type=None,payload_type:type=None):
+        """
+        Append handler
+
+        Args:
+            handler (`function` or 'class'): Handler type.
+            group (`str`, optional): Grouping name to split handlers of same entity and payload to manage starting cases.
+            entity_type ('type', optional) base or concrete class of entity
+            payload_type ('type', optional) base or concrete class of payload
+        """
+
+
         handler_func = None
         is_class = False
         if not inspect.isfunction(handler):
@@ -60,6 +112,14 @@ class Conveyor():
 
     @staticmethod
     def handler(group:str=None,order = 0,entity_type:type=None,payload_type:type=None):
+        """
+        Append handler
+
+        Args:
+            group (`str`, optional): Grouping name to split handlers of same entity and payload to manage starting cases.
+            entity_type ('type', optional) base or concrete class of entity
+            payload_type ('type', optional) base or concrete class of payload
+        """
         def decorator_func(handler):
             Conveyor.register_handler(handler=handler,group=group,order=order,entity_type=entity_type,payload_type=payload_type)
             return handler
