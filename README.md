@@ -92,7 +92,21 @@ class PersonAgeHandler:
 ```
 #### Run conveyor
 
-```py
+simple mode:
+
+```py 
+
+conveyor = Conveyor()
+entity = Entity()
+payload = Payload('evgeniy','fetisov','some description',30)
+results = conveyor.process(entity,payload)
+
+```
+
+
+async mode:
+
+```py 
 
 conveyor = Conveyor()
 loop = asyncio.get_event_loop()
@@ -101,10 +115,10 @@ entity = Entity()
 
 payload = Payload('evgeniy','fetisov','some description',30)
 
-results = loop.run_until_complete(conveyor.process(entity,payload)) 
+results = loop.run_until_complete(conveyor.process_async(entity,payload)) 
 loop.close()
 
-#in python 3.6 and later: results = asyncio.run(conveyor.process(entity,payload))
+#in python 3.6 and later: results = asyncio.run(conveyor.process_async(entity,payload))
 
 ```
 
