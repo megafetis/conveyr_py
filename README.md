@@ -13,7 +13,6 @@ install [conveyr](https://pypi.org/project/conveyr/):
 
 ```py
 from conveyr import Conveyor
-import asyncio
 
 
 #### define interfaces
@@ -107,6 +106,7 @@ results = conveyor.process(entity,payload)
 async mode:
 
 ```py 
+import asyncio
 
 conveyor = Conveyor()
 loop = asyncio.get_event_loop()
