@@ -1,4 +1,9 @@
 # conveyr_py
+
+[![PyPI](https://img.shields.io/pypi/v/conveyr)](https://pypi.org/project/mediatr)
+[![Python](https://img.shields.io/pypi/pyversions/conveyr)](https://pypi.org/project/mediatr) 
+[![Downloads](https://img.shields.io/pypi/dm/conveyr)](https://pypi.org/project/mediatr) 
+
 Conveyor pipline handling library for python 3.5 and later
 
 ## Automatic implementation of pattern "Builder"
