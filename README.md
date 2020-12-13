@@ -16,6 +16,8 @@ install [conveyr](https://pypi.org/project/conveyr/):
 
 `pip install conveyr`
 
+### Define common interfaces:
+
 ```py
 from conveyr import Conveyor
 
@@ -39,7 +41,7 @@ class IHasAgeEntity():
     age=0
 ```
 
-#### define payloads
+### Define payloads:
 
 ```py
 class INamePayload:
@@ -55,7 +57,7 @@ class IHasAgePayload():
     age=0
 ```
 
-#### define concrete entity class an dpayload class
+### Define concrete entity class an dpayload class:
 ```py
 class Entity(IEntity,IHasNameEntity,IHasSurnameEntity,IHasDesctiptionEntity,IHasAgeEntity):
    pass
@@ -68,7 +70,7 @@ class Payload(INamePayload,ISurnamePayload,IDescriptionPayload,IHasAgePayload):
         self.age = age
         
 ```
-#### Define handlers per interface
+### Define handlers per interface:
 
 ```py
 @Conveyor.handler(order=5)
@@ -136,7 +138,19 @@ print(entity.description) #'some description'
 print(entity.age) # 30
 ```
 
-#### advanced
+### Static usage without Conveyor instance:
+
+```py 
+
+from conveyr import Conveyor
+
+entity = Entity()
+payload = Payload('evgeniy','fetisov','some description',30)
+results = Conveyor.process(entity,payload)
+
+```
+
+### Advanced:
 
 You can group handlers to several 'layers'
 

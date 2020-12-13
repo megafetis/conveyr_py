@@ -22,10 +22,10 @@ setup(
   author = 'Evgeniy Fetisov',               
   author_email = 'me@efetisov.ru',  
   url = 'https://github.com/megafetis/mediatr_py',
-  keywords = ['Conveyor', 'Conveyr','chain handling', 'Mediator','pipline', 'behaviors', 'saga', 'Chain','pattern builder','async conveyor' ], 
+  keywords = ['Conveyor', 'Conveyr','chain handling', 'Mediator','pipline', 'behaviors', 'saga', 'Chain','pattern builder','async conveyor','architecture pattern' ], 
   python_requires=">=3.5",
   classifiers=[
-    'Development Status :: 4 - Beta',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
+    'Development Status :: 5 - Production/Stable',      # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
     'Intended Audience :: Developers',      # Define that your audience are developers
     'Topic :: Software Development :: Build Tools',
     "License :: OSI Approved :: MIT License",

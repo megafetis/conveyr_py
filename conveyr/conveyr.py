@@ -1,5 +1,6 @@
 
 from typing import Any,Callable,Awaitable
+import asyncio
 import inspect
 __handlers__ = []
 __handlers_per_concrete__={}
@@ -11,12 +12,17 @@ def __get_result_block__(resp:Awaitable):
     loop.close()
     return results
 
+@staticmethod
+def __default_class_handler_manager__(cls:type):
+    return cls()
+
 class Conveyor():
     """Class of conveyor as entry point to pipline processing"""
     def __init__(self,class_handler_manager = None):
-        self.class_handler_manager = class_handler_manager or (lambda cls: cls() )
+        if class_handler_manager:
+            self.class_handler_manager = class_handler_manager
 
-    class_handler_manager=None
+    class_handler_manager = __default_class_handler_manager__
 
     async def process_async(self, entity:object, payload:object=None,group:str=None)->Awaitable[dict]:
         """
@@ -30,11 +36,18 @@ class Conveyor():
         Returns:
             dictionary (`Awaitable[dict]`): Dictionary of results if handlers returns anything
         """
+
+        is_self = isinstance(self,Conveyor)
+        self1 = self if is_self else Conveyor
+        entity1 = entity if is_self else self
+        payload1 = payload if is_self else entity
+        group1 = group if is_self else payload
+
         resp_dict = {}
-        for handler in Conveyor.find_handlers(entity,payload,group):
-            resp = (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity,payload) if \
+        for handler in Conveyor.find_handlers(entity1,payload1,group1):
+            resp = (self1.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity1,payload1) if \
                  handler["payload_type"] else \
-                      (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity)
+                      (self1.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity1)
 
             resp_dict[handler["handler"].__name__] = await resp if resp and inspect.isawaitable(resp) else resp
         return resp_dict
@@ -52,13 +65,20 @@ class Conveyor():
         Returns:
             dictionary (`dict`): Dictionary of results if handlers returns anything
         """
-        resp_dict = {}
-        for handler in Conveyor.find_handlers(entity,payload,group):
-            resp = (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity,payload) if \
-                 handler["payload_type"] else \
-                      (self.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity)
+        is_self = isinstance(self,Conveyor)
+        self1 = self if is_self else Conveyor
+        entity1 = entity if is_self else self
+        payload1 = payload if is_self else entity
+        group1 = group if is_self else payload
+        no_block1 = no_block if is_self else group
 
-            resp_dict[handler["handler"].__name__] = __get_result_block__(resp) if resp and inspect.isawaitable(resp) and (not no_block) else resp
+        resp_dict = {}
+        for handler in Conveyor.find_handlers(entity1,payload1,group1):
+            resp = (self1.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity1,payload1) if \
+                 handler["payload_type"] else \
+                      (self1.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity1)
+
+            resp_dict[handler["handler"].__name__] = __get_result_block__(resp) if resp and inspect.isawaitable(resp) and (not no_block1) else resp
         return resp_dict
             
 
@@ -73,7 +93,6 @@ class Conveyor():
             entity_type ('type', optional) base or concrete class of entity
             payload_type ('type', optional) base or concrete class of payload
         """
-
 
         handler_func = None
         is_class = False
