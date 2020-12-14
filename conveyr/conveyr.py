@@ -7,7 +7,10 @@ __handlers_per_concrete__={}
 
 
 def __get_result_block__(resp:Awaitable):
-    loop = asyncio.get_event_loop()
+    current_loop = asyncio.get_event_loop()
+    if current_loop and not current_loop.is_closed():
+        return current_loop.run_until_complete(resp)
+    loop = asyncio.new_event_loop()
     results = loop.run_until_complete(resp)
     loop.close()
     return results
