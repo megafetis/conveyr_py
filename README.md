@@ -109,6 +109,7 @@ results = conveyor.process(entity,payload)
 
 ```
 
+>  `Conveyor.process_async` method supports to define `async` `await` handlers. In async mode you can define simple synchronous handlers too.
 
 async mode:
 

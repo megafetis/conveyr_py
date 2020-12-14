@@ -6,14 +6,14 @@ __handlers__ = []
 __handlers_per_concrete__={}
 
 
-def __get_result_block__(resp:Awaitable):
-    current_loop = asyncio.get_event_loop()
-    if current_loop and not current_loop.is_closed():
-        return current_loop.run_until_complete(resp)
-    loop = asyncio.new_event_loop()
-    results = loop.run_until_complete(resp)
-    loop.close()
-    return results
+# def __get_result_block__(resp:Awaitable):
+#     current_loop = asyncio.get_event_loop()
+#     if current_loop and not current_loop.is_closed():
+#         return current_loop.run_until_complete(resp)
+#     loop = asyncio.new_event_loop()
+#     results = loop.run_until_complete(resp)
+#     loop.close()
+#     return results
 
 @staticmethod
 def __default_class_handler_manager__(cls:type):
@@ -81,7 +81,8 @@ class Conveyor():
                  handler["payload_type"] else \
                       (self1.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity1)
 
-            resp_dict[handler["handler"].__name__] = __get_result_block__(resp) if resp and inspect.isawaitable(resp) and (not no_block1) else resp
+            # resp_dict[handler["handler"].__name__] = __get_result_block__(resp) if resp and inspect.isawaitable(resp) and (not no_block1) else resp
+            resp_dict[handler["handler"].__name__] = resp
         return resp_dict
             
 
