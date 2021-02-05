@@ -33,7 +33,9 @@ class Conveyor():
 
         Args:
             entity (`object`): Entity to handle.
+
             payload (`Any` or some `object`): some optional payload data.
+
             group (`str`): Grouping name to split handlers of same entity and payload to manage starting cases.
 
         Returns:
@@ -56,15 +58,19 @@ class Conveyor():
         return resp_dict
 
 
-    def process(self, entity:object, payload:object=None,group:str=None,no_block=False) -> dict:
+    def process(self, entity:object, payload:object=None,group:str=None) -> dict:
         """
-        Start processing entity in async mode
+        Start processing entity in synchronous mode
 
         Args:
             entity (`object`): Entity to handle.
+
             payload (`Any` or some `object`): some optional payload data.
+
             group (`str`): Grouping name to split handlers of same entity and payload to manage starting cases.
-            no_block ('boolean') if set `True`, async handlers will not blocking and waiting to handle. By default `False`
+
+            no_block (`boolean`): if set `True`, async handlers will not blocking and waiting to handle. By default `False`.
+
         Returns:
             dictionary (`dict`): Dictionary of results if handlers returns anything
         """
@@ -73,7 +79,6 @@ class Conveyor():
         entity1 = entity if is_self else self
         payload1 = payload if is_self else entity
         group1 = group if is_self else payload
-        no_block1 = no_block if is_self else group
 
         resp_dict = {}
         for handler in Conveyor.find_handlers(entity1,payload1,group1):
@@ -81,7 +86,6 @@ class Conveyor():
                  handler["payload_type"] else \
                       (self1.class_handler_manager(handler["handler"]).process if handler["isclass"] else handler["handler"])(entity1)
 
-            # resp_dict[handler["handler"].__name__] = __get_result_block__(resp) if resp and inspect.isawaitable(resp) and (not no_block1) else resp
             resp_dict[handler["handler"].__name__] = resp
         return resp_dict
             
@@ -89,13 +93,16 @@ class Conveyor():
     @staticmethod
     def register_handler(handler,group:str=None,order = 0,entity_type:type=None,payload_type:type=None):
         """
-        Append handler
+        Append handler method
 
         Args:
-            handler (`function` or 'class'): Handler type.
+            handler (`function` or `class`): Handler type.
+
             group (`str`, optional): Grouping name to split handlers of same entity and payload to manage starting cases.
-            entity_type ('type', optional) base or concrete class of entity
-            payload_type ('type', optional) base or concrete class of payload
+
+            entity_type (`type`, optional): base or concrete class of entity.
+
+            payload_type (`type`, optional): base or concrete class of payload.
         """
 
         handler_func = None
@@ -123,7 +130,7 @@ class Conveyor():
         if not entity_type:
             raise ValueError("Type of entity in handler method must be specified. handler: {function}".format(function = handler))
 
-        payload_type = sign.parameters.get(items[1]).annotation if params_len > 1 and sign.parameters.get(items[1]).annotation != sign.parameters.get(items[1]).empty else None
+        payload_type = payload_type or sign.parameters.get(items[1]).annotation if params_len > 1 and sign.parameters.get(items[1]).annotation != sign.parameters.get(items[1]).empty else None
 
         if params_len>1 and not payload_type:
             raise ValueError("If your handler has payload, his type must be specified. Handler: {function}, payload: {payload}".format(function = handler,payload=payload_type))
@@ -136,12 +143,14 @@ class Conveyor():
     @staticmethod
     def handler(group:str=None,order = 0,entity_type:type=None,payload_type:type=None):
         """
-        Append handler
+        Append handler decorator
 
         Args:
             group (`str`, optional): Grouping name to split handlers of same entity and payload to manage starting cases.
-            entity_type ('type', optional) base or concrete class of entity
-            payload_type ('type', optional) base or concrete class of payload
+
+            entity_type (`type`, optional): base or concrete class of entity.
+
+            payload_type (`type`, optional): base or concrete class of payload.
         """
         def decorator_func(handler):
             Conveyor.register_handler(handler=handler,group=group,order=order,entity_type=entity_type,payload_type=payload_type)
