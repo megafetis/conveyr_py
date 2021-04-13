@@ -6,6 +6,3 @@ verify_ssl = true
 [dev-packages]
 twine="*"
 [packages]
-
-[requires]
-python_version = "3.5"
